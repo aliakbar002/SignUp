@@ -1,7 +1,6 @@
 package com.signup.login.service;
 
 import com.signup.login.Dto.UserDto;
-import com.signup.login.entity.ConstantsVal;
 import com.signup.login.entity.Role;
 import com.signup.login.entity.User;
 import com.signup.login.entity.UserHelpers;
@@ -12,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -29,43 +28,43 @@ public class UserService {
 
 
     // Get All Mapping
-    public List<User> getAllUsers() throws RecordNotFoundException {
-        Role role = new Role();
-        ConstantsVal constantsVal = new ConstantsVal();
-        if (Objects.equals(role.getName(), constantsVal.getAdmin())) {
-            throw new RecordNotFoundException("Admin not found");
-        } else {
-            return new ArrayList<>(userRepository.findAll());
-
-        }
-    }
-
-
-//    //post mapping saving user
-//    public User saveUser(User user) throws RecordNotFoundException {
-//        int id= user.getRole().getId();
-//        Role role = roleRepository.findById(id);
-//        if (role!=null){
-//            user.setRole(role);
-//            }
-//        else {
-//            throw new RecordNotFoundException("role not found");
-//        }
-//        int uid=user.getCreatedBy().getId();
-//       user=userRepository.findById(uid);
-//       if (user!=null) {
-//           user.setCreatedBy(user);
-//       }
-//        assert user != null;
-//        if (userRepository.findByEmail(user.getEmail()) != null){
-//            throw new RecordNotFoundException("Email already exist");
-//        }
-//        else {
-//            return userRepository.save(user);
+//    public List<User> getAllUsers() throws RecordNotFoundException {
+//        Role role = new Role();
+//        ConstantsVal constantsVal = new ConstantsVal();
+//        if (Objects.equals(role.getName(), constantsVal.getAdmin())) {//   return new ArrayList<>(userRepository.findAll());
 //
-//       }
+//        } else {
+//            throw new RecordNotFoundException("Admin not found");
 //
+//        }
 //    }
+
+
+//    //post mapping saving user withOut encryption
+    public User saveUser(User user) throws RecordNotFoundException {
+        int id= user.getRole().getId();
+        Role role = roleRepository.findById(id);
+        if (role!=null){
+            user.setRole(role);
+            }
+        else {
+            throw new RecordNotFoundException("role not found");
+        }
+        int uid=user.getCreatedBy().getId();
+       user=userRepository.findById(uid);
+       if (user!=null) {
+           user.setCreatedBy(user);
+       }
+        assert user != null;
+        if (userRepository.findByEmail(user.getEmail()) != null){
+            throw new RecordNotFoundException("Email already exist");
+        }
+        else {
+            return userRepository.save(user);
+
+       }
+
+    }
 
    //  post mapping password encryption
     public String create(@RequestBody User user) throws Exception {
@@ -110,11 +109,11 @@ public class UserService {
         try {
            User user1 = userRepository.findByEmail(user.getEmail());
             if (Objects.equals(user1.getPassword(), UserHelpers.decryptStringToBase64(user.getPassword()))) {
-                user1=user;
-                response = "Login successful";
+
+                response = "password encrypted successful";
             }
         } catch (Exception e) {
-            throw new Exception("Login Unsuccessful." + e.getMessage());
+            throw new Exception("encryption Unsuccessful." + e.getMessage());
         }
         return response ;
 
@@ -142,17 +141,7 @@ public class UserService {
         return userRepository.save(ActivateUser);
     }
 
-    //update user by admin
-    public User updateUser(User user) {
-        User updateUser = userRepository.findById(user.getId());
-        assert updateUser != null;
-        updateUser.setEmail(user.getEmail());
-        updateUser.setPassword(user.getPassword());
-        updateUser.setStatus(user.getStatus());
-        updateUser.setCreatedAt(user.getCreatedAt());
-        updateUser.setRole(user.getRole());
-        return userRepository.save(updateUser);
-    }
+
 
     //post mapping for login
     public String Login( String email, String password) throws RecordNotFoundException {
@@ -177,7 +166,7 @@ public class UserService {
         }
     }
 
-    // Get mapping By Admin to fetch list
+    // Get mapping By Admin to fetch list of All users
     public List<User> fetchAll(String email, String password) throws RecordNotFoundException {
         Role role;
         User user = userRepository.findByEmail(email);
@@ -199,29 +188,6 @@ public class UserService {
     }
 
 
-
-
-    //GetMapping By User to get list
-//    public List<User> fetchAllByUser(String email, String password) throws RecordNotFoundException {
-//
-//        User user = userRepository.findByEmail(email);
-//        Role role;
-//        assert user != null;
-//        if (email.equals(user.getEmail()) && password.equals(user.getPassword())){
-//            user.setUpdatedAt(user.getUpdatedAt());
-//            userRepository.save(user);
-//         int id=user.getRole().getId();
-//           role=roleRepository.findNameById(id);
-//           // role = roleRepository.findNameByEmail(email);
-//            String user1="user";
-//            if (Objects.equals(role.getName(), user1)){
-//                return userRepository.findAll();
-//            }
-//        }else {
-//            throw  new RecordNotFoundException("you dont have permission");
-//        }
-//        throw new RecordNotFoundException(" User Does not exist");
-//    }
 
     //Login and update only moderator
     public User fetchOnlyModerator(String email, String password, User user) throws RecordNotFoundException {
@@ -254,7 +220,6 @@ public class UserService {
         Role role;
         assert user != null;
         if (Objects.equals(email, userLogin.getEmail()) && Objects.equals(password, userLogin.getPassword())){
-            assert userLogin != null;
             userLogin.setUpdatedAt(userLogin.getUpdatedAt());
             userRepository.save(userLogin);
             int id=userLogin.getRole().getId();

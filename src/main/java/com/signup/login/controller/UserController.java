@@ -9,24 +9,24 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping({"create", "signUp"})
+//@RequestMapping({"create", "signUp"})
 public class UserController {
     @Autowired
     private UserService userService;
 
   //  Getting only by Admin
-    @GetMapping
-    public List<User> getAllUser() throws RecordNotFoundException {
-        return userService.getAllUsers();
-    }
-    //simple post mapping
-//    @PostMapping
-//    public User addUser(@RequestBody User user) throws RecordNotFoundException {
-//        return userService.saveUser(user);
+//    @GetMapping("/fetchByAdmin")
+//    public List<User> getAllUser() throws RecordNotFoundException {
+//        return userService.getAllUsers();
 //    }
+    //simple post mapping
+    @PostMapping({"createUserSimply", "signUpSimply"})
+    public User addUser(@RequestBody User user) throws RecordNotFoundException {
+        return userService.saveUser(user);
+    }
 
     //post mapping for password encryption
-    @PostMapping
+    @PostMapping({"createUser", "signUp"})
     public String create(@RequestBody User user) throws Exception {
         return userService.create(user);
     }
@@ -43,12 +43,6 @@ public class UserController {
         return userService.ActivateUser(id);
     }
 
-    //update user by admin
-    @PutMapping("/admin/{id}")
-    public User updateUser(@RequestBody User user){
-        return userService.updateUser(user);
-    }
-
     //login form through params
     @PostMapping("/login")
     public String Login(
@@ -57,29 +51,24 @@ public class UserController {
     }
 
     // get mapping for admin
-    @GetMapping("/admin")
+    @GetMapping("login/admin")
     public List<User> fetchAllByAdmin(@RequestParam(name = "email") String email, @RequestParam(name = "password") String password)throws RecordNotFoundException{
         return userService.fetchAll(email, password);
     }
 
-   // @GetMapping("/user")
-//    @GetMapping("/user")
-//    public List<User> fetchAllByUser(@RequestParam (name = "email") String email, @RequestParam(name = "password") String password) throws  RecordNotFoundException{
-//
-//        return userService.fetchAllByUser( email, password);
-//    }
+
     // Login and update only Moderator
-    @PutMapping("/moderator")
+    @PutMapping("login/moderator")
     public User fetchOnlyModerator(@RequestParam (name = "email") String email, @RequestParam(name = "password") String password, @RequestBody User user) throws RecordNotFoundException{
         return  userService.fetchOnlyModerator(email, password, user);
     }
 
     //Login and update by User only for user
-    @PutMapping("/user")
+    @PutMapping("login/user")
     public User updateUser(@RequestParam (name = "email") String email, @RequestParam(name = "password") String password, @RequestBody User user) throws RecordNotFoundException {
         return userService.LoginAndUpdateUser(email, password, user);
     }
-    @PutMapping("/admin")
+    @PutMapping("login/admin")
     public List<User> updateAdmin(@RequestParam (name = "email") String email, @RequestParam(name = "password") String password, @RequestBody User user) throws RecordNotFoundException {
         return userService.LoginAndUpdateAllByAdmin(email, password, user);
     }
